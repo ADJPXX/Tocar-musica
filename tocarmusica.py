@@ -1,4 +1,5 @@
 # Faça um programa em Python que abra e reproduza o áudio de um arquivo MP3.
+from time import sleep
 
 
 def verificar_pacotes(NOME_PACOTE):
@@ -42,26 +43,35 @@ def lerint(msg):
 
 def escolhermusica():
 	from pygame import mixer
+	import ffmpeg
 	import os
 
 	verificar_pacotes("pygame")
-	clear()
-
-	path = (os.path.dirname(os.path.abspath(__file__)) + "\Músicas\\")
+	verificar_pacotes("ffmpeg-python")
 
 	musicas = []
+
+	clear()
+
+	path = (os.path.dirname(os.path.abspath(__file__)) + "\Musicas\\")
+
 	for a in os.listdir(path):
 		musicas.append(a)
 
 	mixer.init()
 	while True:
+
+
+
 		cont = 0
 		print("-"*30)
 		print("LISTA DE MÚSICAS!".center(30))
 		print("-"*30)
+
 		for m in musicas:
 			cont += 1
 			print(f'[ {cont} ] {m}')
+
 		print("-"*30)
 		print("\nDigite 0 para sair do programa\n")
 		op = lerint('Qual música você gostaria de ouvir? ')
@@ -76,11 +86,37 @@ def escolhermusica():
 			print("Digite uma opção válida\n")
 
 		else:
-			mixer.music.load(f"{path}{musicas[op - 1]}")
-			clear()
-			tocandomusica()
-			break
+			try:
+				mixer.music.load(f"{path}{musicas[op - 1]}")
+				clear()
+				tocandomusica()
+				break
+			except:
+				print("SEU ARQUIVO NÃO É COMPATÍVEL, ESTOU CONVERTENDO ELE PARA VOCÊ PODER OUVIR A MÚSICA")
+				print("CONVERTENDO ARQUIVO...")
+				try:
+					input_file = f"{path}{musicas[op - 1]}"
+					output_file = f"{path}{musicas[op - 1]}.mp3"
+					ffmpeg.input(input_file).output(output_file, **{'c:a': 'libmp3lame', 'b:a': '320k'}).run(overwrite_output=True)
 
+					sleep(1.5)
+
+					indice = f'{musicas[op - 1]}'
+
+					nome_antigo = f"{path}{indice}.mp3"
+					novo_nome = f"{path}{indice.replace('.mp3', '_.mp3')}"
+
+					os.rename(nome_antigo, novo_nome)
+
+					musicas.clear()
+					for a in os.listdir(path):
+						if a != indice:
+							musicas.append(a)
+
+
+				except Exception as e:
+					print(f"ERRO AO CONVERTER SEU ARQUIVO: {e}")
+					sleep(3)
 
 def menu(volumeatual):
 	print(f'''Pressione "P" para parar a música.
@@ -89,7 +125,7 @@ Pressione "R" para reiniciar a música.
 Pressione "W" para aumentar o volume.
 Pressione "S" para diminuir o volume.
 Pressione "X" para sair do programa.
-Pressione "V" para trocar a música.\n\nVolume: {volumeatual}''')
+Pressione "V" para trocar a música.\n\nVolume: {volumeatual}\n''')
 	op = lerstring("Sua escolha: ").strip().lower()
 
 	return op
@@ -104,8 +140,6 @@ def tocandomusica():
 	mixer.music.set_volume(volumepadrao)
 
 	while True:
-		global aumentarvolume,baixarvolume
-
 		aumentarvolume = 0
 		baixarvolume = 0
 		op = menu(volumeatual)
@@ -116,12 +150,15 @@ def tocandomusica():
 			print('Obrigado por usar o programa!')
 			break
 		elif op == 'p':
+			clear()
 			mixer.music.pause()
 			print("Musica parada!")
 		elif op == 'e':
+			clear()
 			mixer.music.unpause()
 			print("Música continuada!")
 		elif op == 'r':
+			clear()
 			mixer.music.rewind()
 			print("Música reiniciada!")
 		elif op == 'w':
@@ -129,14 +166,15 @@ def tocandomusica():
 			volumeatual = mixer.music.get_volume()
 			aumentarvolume = volumeatual + 0.02
 			mixer.music.set_volume(aumentarvolume)
-			print(f"Volume aumentado!\nVolume: {volumeatual}")
+			print(f"Volume aumentado!\n")
 		elif op == 's':
 			clear()
 			volumeatual = mixer.music.get_volume()
 			baixarvolume = volumeatual - 0.02
 			mixer.music.set_volume(baixarvolume)
-			print(f"Volume baixado!\nVolume: {volumeatual}")
+			print(f"Volume baixado!\n")
 		elif op == 'v':
+			clear()
 			mixer.music.stop()
 			escolhermusica()
 
