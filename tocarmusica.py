@@ -11,6 +11,7 @@ def verificar_pacotes(NOME_PACOTE):
 
 	else:
 		os.system(f"pip install {NOME_PACOTE}")
+		os.system(f"pip install --upgrade {NOME_PACOTE}}")
 
 
 def clear():
