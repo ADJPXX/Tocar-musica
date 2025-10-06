@@ -12,6 +12,7 @@ def verificar_pacotes(NOME_PACOTE):
 	else:
 		os.system(f"pip install {NOME_PACOTE}")
 		os.system(f"pip install --upgrade {NOME_PACOTE}")
+		clear()
 
 
 def clear():
@@ -47,9 +48,6 @@ def escolhermusica():
 	import ffmpeg
 	import os
 
-	verificar_pacotes("pygame")
-	verificar_pacotes("ffmpeg-python")
-
 	musicas = []
 
 	clear()
@@ -61,9 +59,6 @@ def escolhermusica():
 
 	mixer.init()
 	while True:
-
-
-
 		cont = 0
 		print("-"*30)
 		print("LISTA DE MÚSICAS!".center(30))
@@ -91,7 +86,7 @@ def escolhermusica():
 				mixer.music.load(f"{path}{musicas[op - 1]}")
 				clear()
 				tocandomusica()
-				break
+
 			except:
 				print("SEU ARQUIVO NÃO É COMPATÍVEL, ESTOU CONVERTENDO ELE PARA VOCÊ PODER OUVIR A MÚSICA")
 				print("CONVERTENDO ARQUIVO...")
@@ -118,6 +113,8 @@ def escolhermusica():
 				except Exception as e:
 					print(f"ERRO AO CONVERTER SEU ARQUIVO: {e}")
 					sleep(3)
+		break
+
 
 def menu(volumeatual):
 	print(f'''Pressione "P" para parar a música.
@@ -178,9 +175,12 @@ def tocandomusica():
 			clear()
 			mixer.music.stop()
 			escolhermusica()
-
+		break
 
 def main():
+	verificar_pacotes("pygame")
+	verificar_pacotes("ffmpeg-python")
+
 	escolhermusica()
 
 
