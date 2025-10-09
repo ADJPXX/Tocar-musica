@@ -2,17 +2,31 @@
 from time import sleep
 
 
-def verificar_pacotes(NOME_PACOTE):
-	import importlib
-	import os
-	PACOTE = importlib.util.find_spec(NOME_PACOTE)
-	if PACOTE is not None:
-		print("Pacote já está instalado.")
+def verificar_pacotes(nome_pacote):
+	try:
+		import os
+		import sys
+		import importlib
 
-	else:
-		os.system(f"pip install {NOME_PACOTE}")
-		os.system(f"pip install --upgrade {NOME_PACOTE}")
-		clear()
+		PACOTE = importlib.util.find_spec(nome_pacote)
+
+		if PACOTE is not None:
+			os.system("cls")
+			print(f'[✓] O pacote "{nome_pacote}" já está instalado.\nVou verificar as atualizações e se necessario atualizar.')
+			os.system(f'pip install --upgrade {nome_pacote}')
+
+		else:
+			try:
+				os.system("cls")
+				print(f"[+]Instalando o pacote {nome_pacote}...")
+				os.system(f"pip install {nome_pacote}")
+
+			except Exception as e:
+				os.system("cls")
+				print("Ocorreu um erro ao instalar o pacote: ", e)
+
+	except Exception as e:
+		print(e)
 
 
 def clear():
@@ -86,6 +100,7 @@ def escolhermusica():
 				mixer.music.load(f"{path}{musicas[op - 1]}")
 				clear()
 				tocandomusica()
+				break
 
 			except:
 				print("SEU ARQUIVO NÃO É COMPATÍVEL, ESTOU CONVERTENDO ELE PARA VOCÊ PODER OUVIR A MÚSICA")
@@ -98,22 +113,22 @@ def escolhermusica():
 					sleep(1.5)
 
 					indice = f'{musicas[op - 1]}'
-
-					nome_antigo = f"{path}{indice}.mp3"
-					novo_nome = f"{path}{indice.replace('.mp3', '_.mp3')}"
+					nome_antigo = f"{path}{musicas[op - 1]}.mp3"
+					novo_nome = f"{path}{indice.replace('.mp3', '_convertido.mp3')}"
 
 					os.rename(nome_antigo, novo_nome)
 
-					musicas.clear()
-					for a in os.listdir(path):
-						if a != indice:
-							musicas.append(a)
+					mixer.music.load(f"{novo_nome}")
+					clear()
+					tocandomusica()
 
+					arquivo_excluir = f"{path}{novo_nome}"
+					os.remove(f"{arquivo_excluir}")
+					break
 
 				except Exception as e:
 					print(f"ERRO AO CONVERTER SEU ARQUIVO: {e}")
 					sleep(3)
-		break
 
 
 def menu(volumeatual):
@@ -175,7 +190,8 @@ def tocandomusica():
 			clear()
 			mixer.music.stop()
 			escolhermusica()
-		break
+			break
+
 
 def main():
 	verificar_pacotes("pygame")
